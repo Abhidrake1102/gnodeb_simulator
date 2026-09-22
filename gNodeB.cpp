@@ -10,19 +10,19 @@ using namespace std;
 
 int main () {
 	
-	int server_gnodeb, client_gnodeb;
-	server_gnodeb = socket(AF_INET, SOCK_STREAM, 0);
+	int gnodeb_server_to_ue, client_gnodeb_of_ue;
+	gnodeb_server_to_ue = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (server_gnodeb < 0){
+	if (gnodeb_server_to_ue < 0){
 		cerr << "Failed to create socket\n";
 		return 1;
 	}
 
-	sockaddr_in server_gnodeb_addr, client_gnodeb_addr;
-	server_gnodeb_addr.sin_family = AF_INET;
-	server_gnodeb_addr.sin_port = htons(5050);
+	sockaddr_in ue_server_address, ue_client_addr;
+	ue_server_address.sin_family = AF_INET;
+	ue_server_address.sin_port = htons(5050);
 
-	int result = inet_pton(AF_INET, "127.0.0.1", &server_gnodeb_addr.sin_addr);
+	int result = inet_pton(AF_INET, "127.0.0.1", &ue_server_address.sin_addr);
 
 	if(result == 1) {
 		cout << "Address given to server success\n";
@@ -34,34 +34,34 @@ int main () {
 		cerr << "Error occurred\n";
 	}
 
-	if(bind(server_gnodeb, (sockaddr*)&server_gnodeb_addr, sizeof(server_gnodeb_addr)) < 0) {
+	if(bind(gnodeb_server_to_ue, (sockaddr*)&ue_server_address, sizeof(ue_server_address)) < 0) {
 		cerr <<  "failed to bind socket\n";
 		return 1;
 	}
 
-	socklen_t client_gnodeb_len = sizeof(client_gnodeb_addr);
+	socklen_t client_gnodeb_of_ue_len = sizeof(ue_client_addr);
 
-	listen(server_gnodeb, 5);
+	listen(gnodeb_server_to_ue, 5);
 
 	cout << "Listening to port 5050\n";
 
-	client_gnodeb = accept(server_gnodeb, (sockaddr*)&client_gnodeb_addr, &client_gnodeb_len);
+	client_gnodeb_of_ue = accept(gnodeb_server_to_ue, (sockaddr*)&ue_client_addr, &client_gnodeb_of_ue_len);
 
-	if(client_gnodeb < 0) {
+	if(client_gnodeb_of_ue < 0) {
 		cerr << "Accept failed\n";
 		return 1;
 	}
 
 	char buffer[1024] = {0};
 
-	recv(client_gnodeb, buffer, sizeof(buffer), 0);
+	recv(client_gnodeb_of_ue, buffer, sizeof(buffer), 0);
 
 	const char* reply = "received response from UE";
 
-	send(client_gnodeb, reply, sizeof(reply), 0);
+	send(client_gnodeb_of_ue, reply, sizeof(reply), 0);
 
-	close(client_gnodeb);
-	close(server_gnodeb);
+	close(client_gnodeb_of_ue);
+	close(gnodeb_server_to_ue);
 
 	return 0;
 }
