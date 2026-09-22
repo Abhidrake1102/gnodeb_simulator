@@ -1,0 +1,10 @@
+
+*.*
+!.gitignore
+*.o
+*.so
+build/
+bin/
+*.out
+*.swap
+
