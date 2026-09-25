@@ -36,7 +36,7 @@ void amf_work() {
 	
 	while (true) {
 		string ng_setup_req = "NG_SETUP_REQUEST|1001|GNB-NOIDA";
- 
+		
 		send(gnodeb_client, ng_setup_req.c_str(), ng_setup_req.size(), 0);
 		
 		char receivedbuffer[1024];
