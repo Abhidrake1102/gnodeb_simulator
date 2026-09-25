@@ -54,7 +54,6 @@ void amf_work() {
 	close(gnodeb_client);
 }
 
-using namespace std;
 
 int main () {
 	
