@@ -12,11 +12,11 @@
 // Idea is to run the program as long as UE connects and runs.
 
 void amf_work() {
-	int gnodeb_client = socket(AF_INET, SOCK_STREAM, IPPROT_SCTP);
+	int gnodeb_client = socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP);
 	
 	if(gnodeb_client < 0){
 		cerr << "Failed to create amf socket\n";
-		return 1;
+		return;
 	}
 	
 	sockaddr_in amf_server_addr;
@@ -28,7 +28,7 @@ void amf_work() {
 	if( connect(gnodeb_client, (sockaddr*)&amf_server_addr, sizeof(amf_server_addr)) < 0){
 		cout <<  "Failed to connect to server AMF\n";
 		close(gnodeb_client);
-		return 1;
+		return;
 	}
 	
 	cout << "amf server connected\n";
