@@ -10,6 +10,7 @@
 
 // adding a thread amf Function to let the AMF and gNodeB connection to be a seperate entity 
 // Idea is to run the program as long as UE connects and runs.
+using namespace std;
 
 void amf_work() {
 	int gnodeb_client = socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP);
