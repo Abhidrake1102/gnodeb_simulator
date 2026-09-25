@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <cstring>
+#include <thread>
 #include "message.h"
 
 // adding a thread amf Function to let the AMF and gNodeB connection to be a seperate entity 
@@ -45,14 +46,18 @@ void amf_work() {
 		if(recvLen > 0){
 			string receviedMessage(receivedbuffer, recvLen);
 			cout << "received message from AMF\n";
+			cout << "temporarily closing the connection to end the thread\n";
+			break;
 		}
 	}
+	close(gnodeb_client);
 }
 
 using namespace std;
 
 int main () {
 	
+	thread amf_thread(amf_work);
 	int gnodeb_server, client_ue;
 	gnodeb_server = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -122,6 +127,8 @@ int main () {
 		}
 	}
 	close(gnodeb_server);
+	
+	amf_thread.join();
 
 	return 0;
 }
