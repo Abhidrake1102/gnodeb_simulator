@@ -6,6 +6,8 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <thread>
+#include <errno.h>
+#include <string.h>
 #include "message.h"
 
 // adding a thread amf Function to let the AMF and gNodeB connection to be a seperate entity 
@@ -16,7 +18,8 @@ void amf_work() {
 	int gnodeb_client = socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP);
 	
 	if(gnodeb_client < 0){
-		cerr << "Failed to create amf socket\n";
+		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
+		
 		return;
 	}
 	
