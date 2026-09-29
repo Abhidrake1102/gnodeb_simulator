@@ -28,7 +28,7 @@ void amf_work() {
 	amf_server_addr.sin_family = AF_INET;
 	amf_server_addr.sin_port = htons(38412);
 	//amf_server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-	int result_check = inet_pton(AF_INET, "0.0.0.0", &amf_server_addr.sin_addr);
+	int result_check = inet_pton(AF_INET, "127.0.0.1", &amf_server_addr.sin_addr);
 	
 	if (result_check == 1) {
 		cout << "sucessfully written host\n";
