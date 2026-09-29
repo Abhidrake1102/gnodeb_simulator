@@ -100,6 +100,7 @@ int main () {
 	}
 
 	if(bind(gnodeb_server, (sockaddr*)&gnodeb_sever_addr, sizeof(gnodeb_sever_addr)) < 0) {
+		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
 		cerr <<  "failed to bind socket\n";
 		return 1;
 	}
