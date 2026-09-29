@@ -31,6 +31,7 @@ void amf_work() {
 	
 	if( connect(gnodeb_client, (sockaddr*)&amf_server_addr, sizeof(amf_server_addr)) < 0){
 		cout <<  "Failed to connect to server AMF\n";
+		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
 		close(gnodeb_client);
 		return;
 	}
