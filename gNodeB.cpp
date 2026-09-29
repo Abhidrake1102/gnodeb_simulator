@@ -27,10 +27,22 @@ void amf_work() {
 	memset(&amf_server_addr, 0, sizeof(amf_server_addr));
 	amf_server_addr.sin_family = AF_INET;
 	amf_server_addr.sin_port = htons(38412);
-	amf_server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	//amf_server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	int result_check = inet_pton(AF_INET, "127.0.0.1", &amf_server_addr.sin_addr);
+	
+	if (result_check == 1) {
+		cout << "sucessfully written host\n";
+	}
+	else if (result_check == 0) {
+		cout << "incorrect IPv4\n";
+	}
+	else {
+		cerr << "error occurred\n";
+	}
 	
 	if( connect(gnodeb_client, (sockaddr*)&amf_server_addr, sizeof(amf_server_addr)) < 0){
 		cout <<  "Failed to connect to server AMF\n";
+		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
 		close(gnodeb_client);
 		return;
 	}
@@ -88,6 +100,7 @@ int main () {
 	}
 
 	if(bind(gnodeb_server, (sockaddr*)&gnodeb_sever_addr, sizeof(gnodeb_sever_addr)) < 0) {
+		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
 		cerr <<  "failed to bind socket\n";
 		return 1;
 	}
