@@ -1,12 +1,13 @@
 
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef MAC_HEADER_H
+#define MAC_HEADER_H
 
 #include <vector>
 #include <stdint.h>
 
 using namespace std;
 
+/*
 enum MessageType
 {
 	PRACH = 1,
@@ -16,5 +17,6 @@ enum MessageType
 	RRC_SETUP_COMPLETE = 5,
 	END_OF_PHASE = 6
 };
+*/
 
 #endif
