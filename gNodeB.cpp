@@ -8,58 +8,65 @@
 #include <thread>
 #include <errno.h>
 #include <string.h>
-#include "message.h"
+#include "decode.h"
 
-// adding a thread amf Function to let the AMF and gNodeB connection to be a seperate entity 
+// adding a thread amf Function to let the AMF and gNodeB connection to be a seperate entity
 // Idea is to run the program as long as UE connects and runs.
 using namespace std;
 
-void amf_work() {
+void amf_work()
+{
 	int gnodeb_client = socket(AF_INET, SOCK_STREAM, IPPROTO_SCTP);
-	
-	if(gnodeb_client < 0){
-		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
-		
+
+	if (gnodeb_client < 0)
+	{
+		cerr << "socket() failed: " << strerror(errno) << " (errno=" << errno << ")" << endl;
+
 		return;
 	}
-	
+
 	sockaddr_in amf_server_addr;
 	memset(&amf_server_addr, 0, sizeof(amf_server_addr));
 	amf_server_addr.sin_family = AF_INET;
 	amf_server_addr.sin_port = htons(38412);
-	//amf_server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	// amf_server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 	int result_check = inet_pton(AF_INET, "127.0.0.1", &amf_server_addr.sin_addr);
-	
-	if (result_check == 1) {
+
+	if (result_check == 1)
+	{
 		cout << "sucessfully written host\n";
 	}
-	else if (result_check == 0) {
+	else if (result_check == 0)
+	{
 		cout << "incorrect IPv4\n";
 	}
-	else {
+	else
+	{
 		cerr << "error occurred\n";
 	}
-	
-	if( connect(gnodeb_client, (sockaddr*)&amf_server_addr, sizeof(amf_server_addr)) < 0){
-		cout <<  "Failed to connect to server AMF\n";
-		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
+
+	if (connect(gnodeb_client, (sockaddr *)&amf_server_addr, sizeof(amf_server_addr)) < 0)
+	{
+		cout << "Failed to connect to server AMF\n";
+		cerr << "socket() failed: " << strerror(errno) << " (errno=" << errno << ")" << endl;
 		close(gnodeb_client);
 		return;
 	}
-	
+
 	cout << "amf server connected\n";
-	
-	
-	while (true) {
+
+	while (true)
+	{
 		string ng_setup_req = "NG_SETUP_REQUEST|1001|GNB-NOIDA";
-		
+
 		send(gnodeb_client, ng_setup_req.c_str(), ng_setup_req.size(), 0);
-		
+
 		char receivedbuffer[1024];
-		
+
 		int recvLen = recv(gnodeb_client, receivedbuffer, sizeof(receivedbuffer), 0);
-		
-		if(recvLen > 0){
+
+		if (recvLen > 0)
+		{
 			string receviedMessage(receivedbuffer, recvLen);
 			cout << "received message from AMF\n";
 			cout << "temporarily closing the connection to end the thread\n";
@@ -69,14 +76,15 @@ void amf_work() {
 	close(gnodeb_client);
 }
 
+int main()
+{
 
-int main () {
-	
 	thread amf_thread(amf_work);
 	int gnodeb_server, client_ue;
 	gnodeb_server = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (gnodeb_server < 0){
+	if (gnodeb_server < 0)
+	{
 		cerr << "Failed to create socket\n";
 		return 1;
 	}
@@ -85,23 +93,27 @@ int main () {
 	memset(&gnodeb_sever_addr, 0, sizeof(gnodeb_sever_addr));
 	gnodeb_sever_addr.sin_family = AF_INET;
 	gnodeb_sever_addr.sin_port = htons(5050);
-	
-	// can give any address as well without inet_pton implementation
-	int result = inet_pton(AF_INET, "127.0.0.1", &gnodeb_sever_addr.sin_addr); 
 
-	if(result == 1) {
+	// can give any address as well without inet_pton implementation
+	int result = inet_pton(AF_INET, "127.0.0.1", &gnodeb_sever_addr.sin_addr);
+
+	if (result == 1)
+	{
 		cout << "Address given to server success\n";
 	}
-	else if (result == 0){
+	else if (result == 0)
+	{
 		cout << "incorredt address given\n";
 	}
-	else{
+	else
+	{
 		cerr << "Error occurred\n";
 	}
 
-	if(bind(gnodeb_server, (sockaddr*)&gnodeb_sever_addr, sizeof(gnodeb_sever_addr)) < 0) {
-		cerr << "socket() failed: " << strerror(errno)  << " (errno=" << errno << ")" << endl;
-		cerr <<  "failed to bind socket\n";
+	if (bind(gnodeb_server, (sockaddr *)&gnodeb_sever_addr, sizeof(gnodeb_sever_addr)) < 0)
+	{
+		cerr << "socket() failed: " << strerror(errno) << " (errno=" << errno << ")" << endl;
+		cerr << "failed to bind socket\n";
 		return 1;
 	}
 
@@ -110,32 +122,51 @@ int main () {
 	listen(gnodeb_server, 5); // can we make use of return value 0,-1??
 
 	cout << "Listening to port 5050\n";
-	while (true) {
-		client_ue = accept(gnodeb_server, (sockaddr*)&client_ue_addr, &client_ue_len);
-	
-		if(client_ue < 0) {
+	while (true)
+	{
+		client_ue = accept(gnodeb_server, (sockaddr *)&client_ue_addr, &client_ue_len);
+
+		if (client_ue < 0)
+		{
 			cerr << "Accept failed\n";
 			continue;
 		}
 
-		while(true) {
-			char buffer[1024] = {0};
+		while (true)
+		{
+			uint8_t buffer[1024] = {0};
 
 			ssize_t bytes = recv(client_ue, buffer, sizeof(buffer), 0);
-			
-			if(bytes > 0) {
-				cout << "recevied data from ue\n";				
-			}else if (bytes == 0){
+
+			if (bytes > 0)
+			{
+				cout << "recevied data from ue\n";
+			}
+			else if (bytes == 0)
+			{
 				cout << "ue is disconnected\n";
 				break;
-			}else {
+			}
+			else
+			{
 				cerr << "error occured while receiving data\n";
 			}
-			
+
 			// decode the message and set a flag
+			Decoder decoder;
+			const size_t headerBytes = decoder.decode(buffer, static_cast<size_t>(bytes), true);
+
+			if (!decoder.isDecoded())
+			{
+				cerr << "Mac subheader decode failed:\n";
+				continue;
+			}
+
+			const MacSubheader &header = decoder.macHeader();
+			cout << "MAC subheader decoded: LCID=" << static_cast<unsigned>(header.lcid) << ", length=" << header.length << ", header bytes=" << headerBytes << "\n";
 			// carry flag to send response
 
-			const char* reply = "received response from UE";
+			const char *reply = "received response from UE";
 
 			send(client_ue, reply, sizeof(reply), 0);
 
@@ -143,7 +174,7 @@ int main () {
 		}
 	}
 	close(gnodeb_server);
-	
+
 	amf_thread.join();
 
 	return 0;
